@@ -1,38 +1,76 @@
 <template>
-  <div class="register-container">
-    <el-card class="register-card">
-      <template #header>
-        <h2 class="register-title">注册</h2>
-      </template>
-      <el-form :model="registerForm" :rules="rules" ref="registerFormRef" label-width="80px">
-        <el-form-item label="用户名" prop="username">
-          <el-input v-model="registerForm.username" placeholder="请输入用户名"></el-input>
-        </el-form-item>
-        <el-form-item label="邮箱" prop="email">
-          <el-input v-model="registerForm.email" placeholder="请输入邮箱"></el-input>
-        </el-form-item>
-        <el-form-item label="密码" prop="password">
-          <el-input type="password" v-model="registerForm.password" placeholder="请输入密码" show-password></el-input>
-        </el-form-item>
-        <el-form-item label="确认密码" prop="confirmPassword">
-          <el-input type="password" v-model="registerForm.confirmPassword" placeholder="请再次输入密码" show-password></el-input>
-        </el-form-item>
-        <el-form-item label="验证码" prop="code">
-          <div class="code-container">
-            <el-input v-model="registerForm.code" placeholder="验证码"></el-input>
-            <el-button @click="sendCode" :disabled="countdown > 0" class="code-btn">
-              {{ countdown > 0 ? `${countdown}s` : '获取验证码' }}
-            </el-button>
+  <div class="register-wrapper">
+    <div class="register-background"></div>
+    <div class="register-container">
+      <el-card class="register-card" shadow="always">
+        <div class="register-header">
+          <h2 class="register-title">创建账号</h2>
+          <p class="register-subtitle">加入我们的社区，开始您的创作之旅</p>
+        </div>
+        <el-form :model="registerForm" :rules="rules" ref="registerFormRef" label-position="top">
+          <el-form-item prop="username">
+            <el-input 
+              v-model="registerForm.username" 
+              placeholder="用户名" 
+              size="large"
+              :prefix-icon="User"
+            ></el-input>
+          </el-form-item>
+          <el-form-item prop="email">
+            <el-input 
+              v-model="registerForm.email" 
+              placeholder="邮箱" 
+              size="large"
+              :prefix-icon="Message"
+            ></el-input>
+          </el-form-item>
+          <el-form-item prop="password">
+            <el-input 
+              type="password" 
+              v-model="registerForm.password" 
+              placeholder="密码" 
+              size="large"
+              show-password 
+              :prefix-icon="Lock"
+            ></el-input>
+          </el-form-item>
+          <el-form-item prop="confirmPassword">
+            <el-input 
+              type="password" 
+              v-model="registerForm.confirmPassword" 
+              placeholder="确认密码" 
+              size="large"
+              show-password 
+              :prefix-icon="Lock"
+            ></el-input>
+          </el-form-item>
+          <el-form-item prop="code">
+            <div class="code-input-group">
+              <el-input 
+                v-model="registerForm.code" 
+                placeholder="验证码" 
+                size="large"
+                :prefix-icon="Key"
+              ></el-input>
+              <el-button 
+                @click="sendCode" 
+                :disabled="countdown > 0" 
+                class="code-btn"
+                size="large"
+              >
+                {{ countdown > 0 ? `${countdown}s` : '获取验证码' }}
+              </el-button>
+            </div>
+          </el-form-item>
+          <div class="form-actions">
+            <el-button type="primary" @click="handleRegister" :loading="loading" class="register-btn" size="large">注 册</el-button>
           </div>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="handleRegister" :loading="loading" class="w-100">注册</el-button>
-        </el-form-item>
-      </el-form>
-      <div class="register-links">
-        <router-link to="/login">已有账号？去登录</router-link>
-      </div>
-    </el-card>
+        </el-form>
+        <div class="register-footer">
+          <router-link to="/login" class="link">已有账号？立即登录</router-link>
+        </div>
+      </el-card>
+    </div>
   </div>
 </template>
 
@@ -40,6 +78,7 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { User, Lock, Message, Key } from '@element-plus/icons-vue'
 import request from '@/utils/request'
 import { encryptText, getPublicKey } from '@/utils/rsa'
 
@@ -123,37 +162,121 @@ const handleRegister = async () => {
 </script>
 
 <style scoped>
-.register-container {
+.register-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: calc(100vh - 120px);
+  overflow: hidden;  
 }
+
+.register-container {
+  width: 100%;
+  max-width: 450px;
+  padding: 20px;
+  z-index: 1;
+}
+
 .register-card {
-  width: 400px;
+  border: none;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
-.register-title {
-  margin: 0;
+
+.register-header {
   text-align: center;
+  margin-bottom: 30px;
 }
-.w-100 {
+
+.register-title {
+  font-size: 28px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 8px 0;
+}
+
+.register-subtitle {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+}
+
+:deep(.el-form-item) {
+  margin-bottom: 18px;
+}
+
+:deep(.el-input__wrapper) {
+  border-radius: 8px;
+  padding: 4px 12px;
+  background-color: #f5f7fa;
+  box-shadow: none !important;
+  border: 1px solid transparent;
+  transition: all 0.3s;
+}
+
+:deep(.el-input__wrapper.is-focus) {
+  background-color: #fff;
+  border-color: #409eff;
+}
+
+.code-input-group {
+  display: flex;
+  gap: 12px;
   width: 100%;
 }
-.register-links {
-  text-align: right;
-  margin-top: 10px;
+
+.code-btn {
+  width: 140px;
+  height: 48px;
+  border-radius: 8px;
 }
-.register-links a {
-  color: #409EFF;
+
+.form-actions {
+  margin-top: 30px;
+}
+
+.register-btn {
+  width: 100%;
+  height: 48px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  transition: all 0.3s;
+}
+
+.register-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.4);
+}
+
+.register-footer {
+  text-align: center;
+  margin-top: 24px;
+}
+
+.link {
+  color: #666;
   text-decoration: none;
   font-size: 14px;
+  transition: color 0.3s;
 }
-.code-container {
-  display: flex;
-  gap: 10px;
-  width: 100%;
+
+.link:hover {
+  color: #409eff;
 }
-.code-btn {
-  width: 110px;
+
+@media (max-width: 480px) {
+  .register-container {
+    padding: 15px;
+  }
 }
 </style>

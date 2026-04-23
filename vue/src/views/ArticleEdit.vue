@@ -68,7 +68,7 @@
         </el-form-item>
 
         <el-form-item label="正文内容" prop="content">
-          <RichTextEditor v-model="form.content" />
+           <RichTextEditor v-model="form.content" />
         </el-form-item>
 
         <el-form-item class="footer">
@@ -206,7 +206,7 @@ const submit = async (status) => {
         }
         if (res.code === 200) {
           ElMessage.success('保存成功')
-          router.push('/management')
+          router.push('/admin?tab=articles')
         }
       } catch (error) {
         console.error(error)
@@ -309,7 +309,7 @@ onMounted(() => {
   font-size: 14px;
   font-weight: 600;
 }
-.footer {
+.footer :deep(.el-form-item__content) {
   justify-content: flex-end;
   gap: 10px;
 }

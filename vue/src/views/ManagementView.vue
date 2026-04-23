@@ -4,10 +4,6 @@
       <el-col :span="5" class="sidebar-col">
         <el-card shadow="never" class="sidebar-card">
           <el-menu :default-active="activeMenu" @select="onSelect" class="sidebar-menu">
-            <el-menu-item v-if="isAdmin" index="articles">
-              <el-icon><Document /></el-icon>
-              <span>文章管理</span>
-            </el-menu-item>
             <el-menu-item index="messages">
               <el-icon><Bell /></el-icon>
               <span>消息中心</span>
@@ -22,75 +18,6 @@
       </el-col>
 
       <el-col :span="19">
-        <el-card v-if="activeMenu === 'articles' && isAdmin" shadow="never" class="panel-card">
-          <template #header>
-            <div class="panel-header">
-              <div class="filters">
-                <el-input v-model="articleQuery" placeholder="搜索我的文章..." clearable @keyup.enter="fetchMyArticles">
-                  <template #prefix><el-icon><Search /></el-icon></template>
-                </el-input>
-                <el-select v-model="articleStatus" placeholder="全部状态" clearable class="status-select" @change="fetchMyArticles">
-                  <el-option label="已发布" value="published" />
-                  <el-option label="草稿" value="draft" />
-                </el-select>
-              </div>
-              <el-button type="primary" @click="router.push('/article/edit')">
-                <el-icon><Edit /></el-icon>写文章
-              </el-button>
-            </div>
-          </template>
-
-          <el-table :data="myArticles" v-loading="articleLoading" style="width: 100%">
-            <el-table-column label="文章" min-width="420">
-              <template #default="{ row }">
-                <div class="article-cell">
-                  <div class="mini-cover">
-                    <img :src="row.cover_image || defaultCover" alt="cover" />
-                  </div>
-                  <div class="mini-body">
-                    <div class="mini-title" @click="router.push(`/article/${row.id}`)">{{ row.title }}</div>
-                    <div class="mini-sub">{{ row.summary || '暂无摘要' }}</div>
-                  </div>
-                </div>
-              </template>
-            </el-table-column>
-            <el-table-column prop="status" label="状态" width="120">
-              <template #default="{ row }">
-                <el-tag :type="row.status === 'published' ? 'success' : 'info'">
-                  {{ row.status === 'published' ? '已发布' : '草稿' }}
-                </el-tag>
-              </template>
-            </el-table-column>
-            <el-table-column label="浏览" width="90">
-              <template #default="{ row }">{{ row.view_count || 0 }}</template>
-            </el-table-column>
-            <el-table-column label="点赞" width="90">
-              <template #default="{ row }">{{ row.like_count || 0 }}</template>
-            </el-table-column>
-            <el-table-column label="操作" width="160" fixed="right">
-              <template #default="{ row }">
-                <el-button size="small" @click="router.push(`/article/edit/${row.id}`)">编辑</el-button>
-                <el-popconfirm title="确定删除该文章吗？" @confirm="deleteArticle(row.id)">
-                  <template #reference>
-                    <el-button size="small" type="danger">删除</el-button>
-                  </template>
-                </el-popconfirm>
-              </template>
-            </el-table-column>
-          </el-table>
-
-          <div class="pagination" v-if="myArticleTotal > pageSize">
-            <el-pagination
-              background
-              layout="prev, pager, next"
-              :total="myArticleTotal"
-              :page-size="pageSize"
-              v-model:current-page="articlePage"
-              @current-change="fetchMyArticles"
-            />
-          </div>
-        </el-card>
-
         <el-card v-if="activeMenu === 'messages'" shadow="never" class="panel-card">
           <template #header>
             <div class="panel-header">
@@ -298,17 +225,9 @@ const route = useRoute()
 const router = useRouter()
 
 const pageSize = 10
-const defaultCover = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=300'
 
-const activeMenu = ref('articles')
+const activeMenu = ref('messages')
 const unreadCount = ref(0)
-
-const myArticles = ref([])
-const myArticleTotal = ref(0)
-const articlePage = ref(1)
-const articleQuery = ref('')
-const articleStatus = ref('')
-const articleLoading = ref(false)
 
 const notifications = ref([])
 const notificationTotal = ref(0)
@@ -383,15 +302,10 @@ const onSelect = (key) => {
 
 const syncTabFromRoute = () => {
   const tab = route.query.tab
-  if (tab === 'messages' || tab === 'comments' || tab === 'articles') {
-    if (tab === 'articles' && !isAdmin.value) {
-      activeMenu.value = 'messages'
-    } else {
-      activeMenu.value = tab
-    }
+  if (tab === 'messages' || tab === 'comments') {
+    activeMenu.value = tab
   } else {
-    // 普通用户默认激活消息中心，管理员默认激活文章管理
-    activeMenu.value = isAdmin.value ? 'articles' : 'messages'
+    activeMenu.value = 'messages'
   }
 }
 
@@ -399,7 +313,6 @@ watch(
   () => route.query.tab,
   () => {
     syncTabFromRoute()
-    if (activeMenu.value === 'articles') fetchMyArticles()
     if (activeMenu.value === 'messages') fetchNotifications()
     if (activeMenu.value === 'comments') {
       if (activeCommentTab.value === 'received') fetchReceivedComments()
@@ -418,38 +331,6 @@ const fetchUnread = async () => {
     }
   } catch (e) {
     unreadCount.value = 0
-  }
-}
-
-const fetchMyArticles = async () => {
-  articleLoading.value = true
-  try {
-    const res = await request.get('/api/article/list', {
-      params: {
-        query: articleQuery.value || '',
-        status: articleStatus.value || '',
-        page: articlePage.value,
-        pageSize
-      }
-    })
-    if (res.code === 200) {
-      myArticles.value = res.data.list
-      myArticleTotal.value = res.data.total
-    }
-  } finally {
-    articleLoading.value = false
-  }
-}
-
-const deleteArticle = async (id) => {
-  const res = await request.delete(`/api/article/${id}`)
-  if (res.code === 200) {
-    ElMessage.success('删除成功')
-    const index = myArticles.value.findIndex(a => a.id === id)
-    if (index !== -1) {
-      myArticles.value.splice(index, 1)
-      myArticleTotal.value--
-    }
   }
 }
 
@@ -610,7 +491,6 @@ const formatDate = (dateStr) => {
 onMounted(() => {
   syncTabFromRoute()
   fetchUnread()
-  if (activeMenu.value === 'articles') fetchMyArticles()
   if (activeMenu.value === 'messages') fetchNotifications()
   if (activeMenu.value === 'comments') {
     if (activeCommentTab.value === 'received') fetchReceivedComments()
@@ -635,7 +515,7 @@ onMounted(() => {
 .sidebar-menu {
   border-right: none;
 }
-.sidebar-menu {
+.sidebar-menu :deep(.el-menu-item) {
   height: 54px;
   line-height: 54px;
   margin: 4px 0;
@@ -643,7 +523,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
 }
-.sidebar-menu  {
+.sidebar-menu :deep(.el-menu-item.is-active) {
   background-color: #ecf5ff;
   font-weight: 600;
 }
@@ -652,7 +532,7 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
 }
-.sidebar-badge {
+.sidebar-badge :deep(.el-badge__content) {
   line-height: 1;
   display: inline-flex;
   align-items: center;
@@ -661,28 +541,28 @@ onMounted(() => {
 .panel-card {
   min-height: 600px;
 }
-.panel-card {
+.panel-card :deep(.el-card__header) {
   padding: 0 20px;
   height: 70px;
   box-sizing: border-box;
   display: flex;
   align-items: center;
 }
-.comment-panel {
+.comment-panel :deep(.el-card__header) {
   display: block;
   height: auto;
   min-height: 70px;
 }
-.comment-panel {
+.comment-panel :deep(.el-tabs__header) {
   margin: 0;
 }
-.comment-panel {
+.comment-panel :deep(.el-tabs__nav-wrap::after) {
   display: none;
 }
 .u-right.no-avatar {
   padding-left: 0;
 }
-.panel-card {
+.panel-card :deep(.el-card__body) {
   min-height: 540px;
 }
 .panel-header {
@@ -713,47 +593,6 @@ onMounted(() => {
 }
 .status-select {
   width: 120px;
-}
-
-.article-cell {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.mini-cover {
-  width: 80px;
-  height: 50px;
-  border-radius: 6px;
-  overflow: hidden;
-  background: #f1f5f9;
-  flex-shrink: 0;
-}
-.mini-cover img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.mini-body {
-  min-width: 0;
-}
-.mini-title {
-  font-weight: 600;
-  color: var(--text-color);
-  cursor: pointer;
-  margin-bottom: 4px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.mini-title:hover {
-  color: var(--primary-color);
-}
-.mini-sub {
-  font-size: 12px;
-  color: #94a3b8;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .state-text {

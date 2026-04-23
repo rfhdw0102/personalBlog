@@ -3,7 +3,7 @@
     <el-row :gutter="20">
       <el-col :span="5">
         <el-card shadow="never" class="sidebar-card">
-          <el-menu :default-active="activeMenu" @select="activeMenu = $event" class="sidebar-menu">
+          <el-menu :default-active="activeMenu" @select="handleSelect" class="sidebar-menu">
             <el-menu-item index="users">
               <el-icon><User /></el-icon>
               <span>用户管理</span>
@@ -98,7 +98,7 @@
           <template #header>
             <div class="panel-header">
               <div class="filters">
-                <el-input v-model="adminArticleQuery" placeholder="搜索文章标题..." clearable @keyup.enter="fetchAdminArticles">
+                <el-input v-model="adminArticleQuery" placeholder="搜索我的文章..." clearable @keyup.enter="fetchAdminArticles">
                   <template #prefix><el-icon><Search /></el-icon></template>
                 </el-input>
                 <el-select v-model="adminArticleStatus" placeholder="全部状态" clearable class="status-select" @change="fetchAdminArticles">
@@ -106,6 +106,9 @@
                   <el-option label="草稿" value="draft" />
                 </el-select>
               </div>
+              <el-button type="primary" @click="router.push('/article/edit')">
+                <el-icon><Edit /></el-icon>写文章
+              </el-button>
             </div>
           </template>
 
@@ -118,7 +121,7 @@
                   </div>
                   <div class="mini-body">
                     <div class="mini-title" @click="router.push(`/article/${row.id}`)">{{ row.title }}</div>
-                    <div class="mini-sub">{{ row.username || '匿名' }} · {{ formatDate(row.updated_at) }}</div>
+                    <div class="mini-sub">{{ row.summary || '暂无摘要' }}</div>
                   </div>
                 </div>
               </template>
@@ -136,8 +139,9 @@
             <el-table-column label="点赞" width="90">
               <template #default="{ row }">{{ row.like_count || 0 }}</template>
             </el-table-column>
-            <el-table-column label="操作" width="140" fixed="right">
+            <el-table-column label="操作" width="160" fixed="right">
               <template #default="{ row }">
+                <el-button size="small" @click="router.push(`/article/edit/${row.id}`)">编辑</el-button>
                 <el-popconfirm title="确定删除该文章吗？" @confirm="deleteArticle(row.id)">
                   <template #reference>
                     <el-button size="small" type="danger">删除</el-button>
@@ -150,11 +154,10 @@
           <div class="pagination" v-if="adminArticleTotal > pageSize">
             <el-pagination
               background
-              layout="prev, pager, next, jumper"
+              layout="prev, pager, next"
               :total="adminArticleTotal"
               :page-size="pageSize"
               v-model:current-page="adminArticlePage"
-              :pager-count="5"
               @current-change="fetchAdminArticles"
             />
           </div>
@@ -309,16 +312,33 @@
 
 <script setup>
 import { ref, reactive, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import request from '@/utils/request'
 import { encryptText, getPublicKey } from '@/utils/rsa'
 
+const route = useRoute()
 const router = useRouter()
 const pageSize = 10
 const defaultCover = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=300'
 
 const activeMenu = ref('users')
+
+const syncTabFromRoute = () => {
+  const tab = route.query.tab
+  if (['users', 'articles', 'categories', 'tags'].includes(tab)) {
+    activeMenu.value = tab
+  }
+}
+
+const handleSelect = (key) => {
+  activeMenu.value = key
+  router.replace({ path: '/admin', query: { tab: key } })
+}
+
+watch(() => route.query.tab, () => {
+  syncTabFromRoute()
+})
 
 const users = ref([])
 const userTotal = ref(0)
@@ -621,6 +641,7 @@ watch(activeMenu, (newVal) => {
 })
 
 onMounted(() => {
+  syncTabFromRoute()
   if (activeMenu.value === 'users') fetchUsers()
   else if (activeMenu.value === 'articles') fetchAdminArticles()
   else if (activeMenu.value === 'categories') fetchCategories()

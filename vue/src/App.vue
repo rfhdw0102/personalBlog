@@ -50,7 +50,7 @@
                         <el-icon><User /></el-icon>个人信息
                       </el-dropdown-item>
                       <el-dropdown-item command="/management">
-                        <el-icon><Document /></el-icon>内容管理
+                        <el-icon><Document /></el-icon>消息管理
                       </el-dropdown-item>
                       <el-dropdown-item v-if="isAdmin" command="/admin">
                         <el-icon><Management /></el-icon>后台管理
@@ -110,6 +110,13 @@ window.addEventListener('user-login', () => {
   isLoggedIn.value = !!localStorage.getItem('token')
   userStr.value = localStorage.getItem('user')
   fetchUnread()
+})
+
+// Handle logout event (triggered by request interceptor on 401)
+window.addEventListener('user-logout', () => {
+  isLoggedIn.value = false
+  userStr.value = null
+  unreadCount.value = 0
 })
 
 // Listen for custom event to refresh unread count
@@ -175,7 +182,7 @@ onMounted(() => {
 </script>
 
 <style>
-.badge {
+.badge :deep(.el-badge__content) {
   transform: translate(50%, -50%);
 }
 .app-header {
@@ -233,14 +240,14 @@ onMounted(() => {
 .search-input {
   max-width: 400px;
 }
-.search-input {
+.search-input :deep(.el-input__wrapper) {
   border-radius: 20px;
   background-color: #f1f5f9;
   box-shadow: none !important;
   border: 1px solid transparent;
   transition: all 0.3s;
 }
-.search-input {
+.search-input :deep(.el-input__wrapper.is-focus) {
   background-color: #fff;
   border-color: var(--primary-color);
   box-shadow: 0 0 0 1px var(--primary-color) !important;

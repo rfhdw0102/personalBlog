@@ -10,10 +10,10 @@ import { ref, onMounted, watch, onBeforeUnmount } from 'vue'
 import Quill from 'quill'
 import 'quill/dist/quill.snow.css'
 import request from '@/utils/request'
-import ImageResize from 'quill-image-resize-module'
 
-// 注册图片缩放模块
-Quill.register('modules/imageResize', ImageResize)
+window.Quill = Quill
+const ImageResize = require('quill-image-resize-module')
+Quill.register('modules/imageResize', ImageResize.default || ImageResize)
 
 const props = defineProps({
   modelValue: {
@@ -118,66 +118,45 @@ onBeforeUnmount(() => {
 <style scoped>
 .editor-wrapper {
   min-height: 400px;
+  width: 100%;
+  border-radius: 8px;
+  background-color: #fff;
+  border: 1px solid #dcdfe6;
+}
+
+:deep(.ql-container) {
+  min-height: 350px;
+  height: auto;
+  font-size: 15px;
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
 }
 
-.editor-wrapper {
+:deep(.ql-toolbar) {
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
   background-color: #f8fafc;
+  border-color: #dcdfe6;
+}
+
+:deep(.ql-editor) {
+  min-height: 350px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 图片缩放模块样式 */
+:deep(.ql-editor img) {
+  max-width: 100%;
+  height: auto;
+  cursor: pointer;
+}
+
+:deep(.image-resize-active) {
+  outline: 2px solid #409EFF;
 }
 
 .hidden-input {
   display: none;
-}
-
-/* 图片缩放模块样式 */
-.editor-wrapper {
-  max-width: 100%;
-  cursor: pointer;
-}
-
-.editor-wrapper {
-  display: inline-block;
-  position: relative;
-}
-
-.editor-wrapper {
-  opacity: 0.5;
-}
-
-.editor-wrapper {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  background: #409eff;
-  border: 2px solid #fff;
-  border-radius: 50%;
-  z-index: 100;
-}
-
-.editor-wrapper {
-  right: -5px;
-  bottom: -5px;
-  cursor: se-resize;
-}
-
-.editor-wrapper {
-  left: -5px;
-  bottom: -5px;
-  cursor: sw-resize;
-}
-
-.editor-wrapper {
-  right: -5px;
-  top: -5px;
-  cursor: ne-resize;
-}
-
-.editor-wrapper {
-  left: -5px;
-  top: -5px;
-  cursor: nw-resize;
 }
 </style>

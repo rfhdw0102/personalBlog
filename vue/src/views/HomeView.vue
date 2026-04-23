@@ -123,6 +123,14 @@
               <div class="stat-label">文章</div>
             </div>
             <div class="stat-item">
+              <div class="stat-value">{{ categories.length }}</div>
+              <div class="stat-label">分类</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">{{ tags.length }}</div>
+              <div class="stat-label">标签</div>
+            </div>
+            <div class="stat-item">
               <div class="stat-value">{{ authorInfo.viewCount || 0 }}</div>
               <div class="stat-label">浏览</div>
             </div>
@@ -135,6 +143,26 @@
               <el-icon><Present /></el-icon>
               打赏支持
             </el-button>
+          </div>
+        </el-card>
+
+        <!-- 标签云 -->
+        <el-card class="tag-cloud-card mt-6" shadow="never">
+          <template #header>
+            <div class="sidebar-title" style="padding-left: 0; margin-bottom: 0;">标签云</div>
+          </template>
+          <div class="tag-cloud">
+            <el-tag
+                v-for="tag in tags"
+                :key="tag.id"
+                class="tag-item"
+                :type="getTagType(tag.id)"
+                :effect="activeTag === tag.id ? 'dark' : 'plain'"
+                round
+                @click="changeTag(tag.id)"
+            >
+              {{ tag.name }}
+            </el-tag>
           </div>
         </el-card>
       </div>
@@ -164,7 +192,9 @@ const pageSize = ref(10)
 const loading = ref(false)
 const showDonateDialog = ref(false)
 const categories = ref([])
+const tags = ref([])
 const activeCategory = ref('')
+const activeTag = ref(0)
 const sortType = ref(0) // 0: 最近发布, 1: 热门推荐
 const defaultCover = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=300'
 const defaultAvatar = '/uploads/avatars/default.png'
@@ -220,11 +250,27 @@ const fetchCategories = async () => {
   }
 }
 
+// 获取标签列表
+const fetchTags = async () => {
+  try {
+    const res = await request.get('/api/tag/list')
+    if (res.code === 200) {
+      tags.value = res.data || []
+    }
+  } catch (error) {
+    console.error('获取标签失败:', error)
+  }
+}
+
 // 切换分类
 const changeCategory = (categoryId) => {
-  activeCategory.value = categoryId
-  currentPage.value = 1
-  fetchArticles()
+  router.push({ path: '/', query: { ...route.query, category: categoryId || undefined, tag: undefined } })
+}
+
+// 切换标签
+const changeTag = (tagId) => {
+  const newTagId = activeTag.value === tagId ? 0 : tagId
+  router.push({ path: '/', query: { ...route.query, tag: newTagId || undefined } })
 }
 
 // 切换排序方式
@@ -241,9 +287,10 @@ const fetchArticles = async () => {
       params: {
         status: 'published',
         query: route.query.q || '',
+        tag_id: activeTag.value || 0,
         page: currentPage.value,
         pageSize: pageSize.value,
-        category_id: activeCategory.value,
+        category_id: activeCategory.value || 0,
         sort: sortType.value
       }
     })
@@ -258,11 +305,13 @@ const fetchArticles = async () => {
   }
 }
 
-// Watch for search query changes in URL
-watch(() => route.query.q, () => {
+// Watch for all query changes in URL to prevent duplicate requests
+watch(() => route.query, (newQuery) => {
+  activeTag.value = Number(newQuery.tag) || 0
+  activeCategory.value = Number(newQuery.category) || ''
   currentPage.value = 1
   fetchArticles()
-})
+}, { deep: true })
 
 
 const goToDetail = (id) => {
@@ -275,10 +324,22 @@ const formatDate = (dateStr) => {
   return date.toLocaleDateString() + ' ' + date.toLocaleTimeString()
 }
 
+const getTagType = (tagId) => {
+  if (activeTag.value === tagId) return ''
+  const types = ['', 'success', 'info', 'warning', 'danger']
+  return types[tagId % types.length]
+}
+
 onMounted(() => {
+  const queryTag = Number(route.query.tag)
+  if (queryTag) activeTag.value = queryTag
+  const queryCat = Number(route.query.category)
+  if (queryCat) activeCategory.value = queryCat
+  
   fetchArticles()
   fetchAuthorInfo()
   fetchCategories()
+  fetchTags()
 })
 </script>
 
@@ -450,17 +511,18 @@ onMounted(() => {
 }
 
 .stat-item {
+  flex: 1;
   text-align: center;
 }
 
 .stat-value {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--text-color);
 }
 
 .stat-label {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--secondary-text-color);
   margin-top: 4px;
 }
@@ -473,6 +535,32 @@ onMounted(() => {
 .donate-btn {
   width: 100%;
   border-radius: 20px;
+}
+
+.tag-cloud-card {
+  border-radius: 12px;
+}
+
+.tag-cloud-card :deep(.el-card__header) {
+  padding: 12px 20px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.tag-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.tag-item {
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.tag-item:hover {
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .donate-dialog-content {

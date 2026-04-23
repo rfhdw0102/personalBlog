@@ -38,8 +38,8 @@ request.interceptors.response.use(
                 if (token) {
                     localStorage.removeItem('token')
                     localStorage.removeItem('user')
+                    window.dispatchEvent(new CustomEvent('user-logout'))
 
-                    // 获取当前路由
                     const currentRoute = router.currentRoute.value
                     // 只在需要认证的页面才跳转到登录页
                     if (currentRoute.meta?.requiresAuth) {
@@ -61,10 +61,11 @@ request.interceptors.response.use(
             const { status, data } = error.response
 
             switch (status) {
-                case 401:{
+                case 401: {
                     ElMessage.error('登录已过期，请重新登录')
                     localStorage.removeItem('token')
                     localStorage.removeItem('user')
+                    window.dispatchEvent(new CustomEvent('user-logout'))
 
                     const currentRoute = router.currentRoute.value
                     if (currentRoute.meta?.requiresAuth) {
@@ -72,20 +73,20 @@ request.interceptors.response.use(
                     }
                     break
                 }
-                case 403:{
+                case 403: {
                     ElMessage.error('没有权限访问')
                     break
                 }
-                case 404:{
+                case 404: {
                     ElMessage.error('请求的资源不存在')
                     break
                 }
-                case 500:{
+                case 500: {
                     ElMessage.error('服务器错误，请稍后重试')
                     break
                 }
-                default:{
-                    ElMessage.error(data?.message || '网络错误，请稍后重试')
+                default: {
+                    ElMessage.error(data.msg || data.message || '网络错误，请稍后重试')
                 }
             }
         } else if (error.request) {
