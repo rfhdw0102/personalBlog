@@ -167,7 +167,6 @@ const fetchLikeStatus = async (id) => {
 const toggleLike = async () => {
   if (!localStorage.getItem('token')) {
     ElMessage.warning('请先登录')
-    router.push('/login')
     return
   }
   const id = route.params.id
@@ -218,7 +217,6 @@ const onCommentTypeChange = () => {
 const submitComment = async () => {
   if (!localStorage.getItem('token')) {
     ElMessage.warning('请先登录')
-    router.push('/login')
     return
   }
   const id = Number(route.params.id)

@@ -18,13 +18,12 @@
           <h2><el-icon><Tools /></el-icon> 我的的技术栈</h2>
           <div class="tech-stack">
             <el-tag size="large">Vue 3</el-tag>
-            <el-tag size="large" type="success">Git</el-tag>
-            <el-tag size="large" type="warning">Go (Gin)</el-tag>
+            <el-tag size="large">Element plus</el-tag>
+            <el-tag size="large" type="warning">Go</el-tag>
+            <el-tag size="large" type="warning">Gin</el-tag>
             <el-tag size="large" type="danger">GORM</el-tag>
             <el-tag size="large" type="info">MySQL</el-tag>
             <el-tag size="large">Redis</el-tag>
-            <el-tag size="large">Docker</el-tag>
-            <el-tag size="large">Eino</el-tag>
           </div>
         </section>
 
