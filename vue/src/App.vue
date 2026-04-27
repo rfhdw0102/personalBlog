@@ -1,18 +1,18 @@
 <template>
   <el-config-provider>
     <div id="app-layout">
-      <header class="app-header">
-        <div class="header-content">
+      <header class="app-header" :class="{ 'admin-header-mode': isAdminPage }">
+        <div class="header-content" :class="{ 'admin-mode': isAdminPage }">
           <div class="logo-container" @click="router.push('/')">
             <span class="logo-text">Blogs</span>
           </div>
 
-          <nav class="nav-links">
+          <nav class="nav-links" v-if="!isAdminPage">
             <el-button link @click="router.push('/')" :class="{ active: currentPath === '/' }">首页</el-button>
             <el-button link @click="router.push('/about')" :class="{ active: currentPath === '/about' }">关于</el-button>
           </nav>
 
-          <div class="header-center">
+          <div class="header-center" v-if="!isAdminPage">
             <el-input
               v-model="searchQuery"
               placeholder="搜索文章..."
@@ -26,13 +26,13 @@
             </el-input>
           </div>
 
-          <div class="header-right">
+          <div class="header-right" :class="{ 'admin-mode': isAdminPage }">
             <template v-if="!isLoggedIn">
               <el-button type="primary" link @click="router.push('/login')" class="nav-btn">登录</el-button>
             </template>
             <template v-else>
               <div class="nav-actions">
-                <div class="notification-wrapper" @click="router.push('/management?tab=messages')">
+                <div class="notification-wrapper" @click="router.push('/management?tab=messages')" v-if="!isAdminPage">
                   <el-badge :value="unreadCount" :hidden="unreadCount === 0" class="badge">
                     <el-icon><Bell /></el-icon>
                   </el-badge>
@@ -45,7 +45,7 @@
                     <el-icon><ArrowDown /></el-icon>
                   </div>
                   <template #dropdown>
-                    <el-dropdown-menu>
+                    <el-dropdown-menu v-if="!isAdminPage">
                       <el-dropdown-item command="/profile">
                         <el-icon><User /></el-icon>个人信息
                       </el-dropdown-item>
@@ -54,6 +54,14 @@
                       </el-dropdown-item>
                       <el-dropdown-item v-if="isAdmin" command="/admin">
                         <el-icon><Management /></el-icon>后台管理
+                      </el-dropdown-item>
+                      <el-dropdown-item divided command="logout" class="logout-item">
+                        <el-icon><SwitchButton /></el-icon>退出登录
+                      </el-dropdown-item>
+                    </el-dropdown-menu>
+                    <el-dropdown-menu v-else>
+                      <el-dropdown-item command="/">
+                        <el-icon><HomeFilled /></el-icon>返回前台
                       </el-dropdown-item>
                       <el-dropdown-item divided command="logout" class="logout-item">
                         <el-icon><SwitchButton /></el-icon>退出登录
@@ -77,7 +85,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { Bell, User, Document, Management, SwitchButton, ArrowDown, Search } from '@element-plus/icons-vue'
+import { Bell, User, Document, Management, SwitchButton, ArrowDown, Search, HomeFilled } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import request from '@/utils/request'
 
@@ -90,6 +98,7 @@ const unreadCount = ref(0)
 const searchQuery = ref('')
 
 const currentPath = computed(() => route.path)
+const isAdminPage = computed(() => route.path.startsWith('/admin'))
 const user = computed(() => userStr.value ? JSON.parse(userStr.value) : null)
 const username = computed(() => user.value ? user.value.username : '')
 const userAvatar = computed(() => {
@@ -195,6 +204,14 @@ onMounted(() => {
   top: 0;
   z-index: 1000;
 }
+.app-header.admin-header-mode {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-bottom: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+.admin-header-mode .logo-text {
+  color: #fff;
+}
 .header-content {
   max-width: 1100px;
   width: 100%;
@@ -204,6 +221,10 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   box-sizing: border-box;
+}
+.header-content.admin-mode {
+  max-width: 1100px;  /* 跟前台保持一致的宽度 */
+  justify-content: space-between;  /* Logo 左，用户信息右 */
 }
 .logo-container {
   display: flex;
@@ -256,6 +277,9 @@ onMounted(() => {
   display: flex;
   align-items: center;
 }
+.header-right.admin-mode {
+  margin-left: auto;
+}
 .nav-btn {
   font-size: 20px !important;
   font-weight: 600;
@@ -282,6 +306,12 @@ onMounted(() => {
   gap: 8px;
   cursor: pointer;
   outline: none;
+}
+.admin-header-mode .user-info .username {
+  color: #fff;
+}
+.admin-header-mode .user-info .el-icon {
+  color: #fff;
 }
 .username {
   font-weight: 600;

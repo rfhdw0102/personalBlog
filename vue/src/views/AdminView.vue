@@ -1,6 +1,45 @@
 <template>
   <div class="admin">
-    <el-row :gutter="20">
+    <div class="admin-header">
+      <div class="header-content">
+        <h1 class="admin-title">
+          <el-icon class="title-icon"><Setting /></el-icon>
+          后台管理
+        </h1>
+        <div class="header-stats">
+          <div class="stat-item">
+            <el-icon class="stat-icon"><User /></el-icon>
+            <div class="stat-info">
+              <div class="stat-value">{{ statsData.user_count }}</div>
+              <div class="stat-label">用户</div>
+            </div>
+          </div>
+          <div class="stat-item">
+            <el-icon class="stat-icon"><Document /></el-icon>
+            <div class="stat-info">
+              <div class="stat-value">{{ statsData.article_count }}</div>
+              <div class="stat-label">文章</div>
+            </div>
+          </div>
+          <div class="stat-item">
+            <el-icon class="stat-icon"><Menu /></el-icon>
+            <div class="stat-info">
+              <div class="stat-value">{{ statsData.category_count }}</div>
+              <div class="stat-label">分类</div>
+            </div>
+          </div>
+          <div class="stat-item">
+            <el-icon class="stat-icon"><CollectionTag /></el-icon>
+            <div class="stat-info">
+              <div class="stat-value">{{ statsData.tag_count }}</div>
+              <div class="stat-label">标签</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <el-row :gutter="20" class="admin-content">
       <el-col :span="5">
         <el-card shadow="never" class="sidebar-card">
           <el-menu :default-active="activeMenu" @select="handleSelect" class="sidebar-menu">
@@ -44,7 +83,7 @@
           </template>
 
           <el-table :data="users" v-loading="userLoading" style="width: 100%">
-            <el-table-column label="用户" min-width="240">
+            <el-table-column label="用户" width="200">
               <template #default="{ row }">
                 <div class="user-cell">
                   <el-avatar :size="32" :src="row.avatar || '/uploads/avatars/default.png'" />
@@ -55,21 +94,21 @@
                 </div>
               </template>
             </el-table-column>
-            <el-table-column prop="email" label="邮箱" min-width="220" />
-            <el-table-column prop="role" label="角色" width="120">
+            <el-table-column prop="email" label="邮箱" width="200" />
+            <el-table-column prop="role" label="角色" width="100">
               <template #default="{ row }">
                 <el-tag :type="row.role === 'admin' ? 'warning' : 'info'">{{ row.role }}</el-tag>
               </template>
             </el-table-column>
-            <el-table-column prop="status" label="状态" width="120">
+            <el-table-column prop="status" label="状态" width="100">
               <template #default="{ row }">
                 <el-tag :type="row.status === 1 ? 'success' : 'danger'">{{ row.status === 1 ? '正常' : '禁用' }}</el-tag>
               </template>
             </el-table-column>
-            <el-table-column prop="created_at" label="注册时间" width="180">
+            <el-table-column prop="created_at" label="注册时间" width="160">
               <template #default="{ row }">{{ formatDate(row.created_at) }}</template>
             </el-table-column>
-            <el-table-column label="操作" width="180" fixed="right">
+            <el-table-column label="操作" width="160" fixed="right">
               <template #default="{ row }">
                 <el-button size="small" @click="openUserDialog(row)">编辑</el-button>
                 <el-popconfirm title="确定删除该用户吗？" @confirm="deleteUser(row.id)">
@@ -113,7 +152,7 @@
           </template>
 
           <el-table :data="adminArticles" v-loading="adminArticleLoading" style="width: 100%">
-            <el-table-column label="文章" min-width="420">
+            <el-table-column label="文章" width="380">
               <template #default="{ row }">
                 <div class="article-cell">
                   <div class="mini-cover">
@@ -126,17 +165,17 @@
                 </div>
               </template>
             </el-table-column>
-            <el-table-column label="状态" width="120">
+            <el-table-column label="状态" width="100">
               <template #default="{ row }">
                 <el-tag :type="row.status === 'published' ? 'success' : 'info'">
                   {{ row.status === 'published' ? '已发布' : '草稿' }}
                 </el-tag>
               </template>
             </el-table-column>
-            <el-table-column label="浏览" width="90">
+            <el-table-column label="浏览" width="80">
               <template #default="{ row }">{{ row.view_count || 0 }}</template>
             </el-table-column>
-            <el-table-column label="点赞" width="90">
+            <el-table-column label="点赞" width="80">
               <template #default="{ row }">{{ row.like_count || 0 }}</template>
             </el-table-column>
             <el-table-column label="操作" width="160" fixed="right">
@@ -314,6 +353,7 @@
 import { ref, reactive, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { Setting } from '@element-plus/icons-vue'
 import request from '@/utils/request'
 import { encryptText, getPublicKey } from '@/utils/rsa'
 
@@ -323,6 +363,24 @@ const pageSize = 10
 const defaultCover = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=300'
 
 const activeMenu = ref('users')
+
+const statsData = ref({
+  user_count: 0,
+  article_count: 0,
+  category_count: 0,
+  tag_count: 0
+})
+
+const fetchStats = async () => {
+  try {
+    const res = await request.get('/api/admin/stats')
+    if (res.code === 200) {
+      statsData.value = res.data
+    }
+  } catch (error) {
+    console.error('获取统计数据失败:', error)
+  }
+}
 
 const syncTabFromRoute = () => {
   const tab = route.query.tab
@@ -642,6 +700,7 @@ watch(activeMenu, (newVal) => {
 
 onMounted(() => {
   syncTabFromRoute()
+  fetchStats()
   if (activeMenu.value === 'users') fetchUsers()
   else if (activeMenu.value === 'articles') fetchAdminArticles()
   else if (activeMenu.value === 'categories') fetchCategories()
@@ -651,46 +710,197 @@ onMounted(() => {
 
 <style scoped>
 .admin {
-  padding: 20px;
-  background: #f5f7fb;
   min-height: 100vh;
+  background: #f5f7fb;
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-header {
+  position: relative;
+  padding: 40px 20px 30px;
+}
+
+.header-content {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.admin-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 32px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 30px 0;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.title-icon {
+  font-size: 36px;
+  color: #667eea;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.header-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.stat-item {
+  background: #fff;
+  backdrop-filter: none;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.stat-item:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.stat-icon {
+  font-size: 32px;
+  color:  #667eea;
+  background: #f0f2ff;
+  padding: 12px;
+  border-radius: 12px;
+}
+
+.stat-info {
+  flex: 1;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 13px;
+  color:  #6b7280;
+  font-weight: 500;
+}
+
+.admin-content {
+  position: relative;
+  padding: 0 20px 40px;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 /* 卡片 */
 .sidebar-card,
 .panel-card {
-  border-radius: 16px;
+  border-radius: 20px;
   border: none;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
+  background:  #fff;
+  backdrop-filter: none;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.panel-card {
+  animation: slideIn 0.4s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.panel-card:hover {
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
 }
 
 /* 顶部渐变线 */
 .panel-card::before {
   content: '';
   display: block;
-  height: 3px;
-  background: linear-gradient(90deg, #409eff, #67c23a);
+  height: 4px;
+  background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+  background-size: 200% 100%;
+  animation: gradientMove 3s ease infinite;
+}
+
+@keyframes gradientMove {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
 /* 侧边栏 */
+.sidebar-card {
+  position: sticky;
+  top: 20px;
+}
+
 .sidebar-menu {
   border: none;
+  background: transparent;
 }
 
 .sidebar-menu .el-menu-item {
-  border-radius: 10px;
-  margin: 4px 0;
-  transition: all 0.2s;
+  border-radius: 12px;
+  margin: 8px 0;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar-menu .el-menu-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, #667eea, #764ba2);
+  transform: scaleY(0);
+  transition: transform 0.3s ease;
 }
 
 .sidebar-menu .el-menu-item:hover {
-  background: #f0f7ff;
+  background: #f0f2ff;
+  transform: translateX(4px);
+}
+
+.sidebar-menu .el-menu-item:hover::before {
+  transform: scaleY(1);
 }
 
 .sidebar-menu .el-menu-item.is-active {
-  background: linear-gradient(135deg, #409eff, #66b1ff);
+  background: linear-gradient(135deg, #667eea, #764ba2);
   color: #fff;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  transform: translateX(4px);
+}
+
+.sidebar-menu .el-menu-item.is-active::before {
+  transform: scaleY(1);
 }
 
 /* 头部 */
@@ -699,6 +909,7 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   gap: 16px;
+  flex-wrap: wrap;
 }
 
 .filters {
@@ -708,49 +919,116 @@ onMounted(() => {
   max-width: 720px;
 }
 
-.filters .el-input,
-.filters .el-select {
-  border-radius: 10px;
+.filters :deep(.el-input__wrapper) {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.filters :deep(.el-input__wrapper:hover) {
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+}
+
+.filters :deep(.el-input__wrapper.is-focus) {
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.25);
 }
 
 /* 按钮 */
-.el-button--primary {
-  border-radius: 10px;
-  padding: 10px 18px;
+:deep(.el-button--primary) {
+  border-radius: 12px;
+  padding: 10px 20px;
   font-weight: 600;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border: none;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  transition: all 0.3s ease;
+}
+
+:deep(.el-button--primary:hover) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+:deep(.el-button--primary:active) {
+  transform: translateY(0);
 }
 
 /* 表格 */
-.el-table {
+:deep(.el-table) {
   border-radius: 12px;
   overflow: hidden;
+  background: transparent;
 }
 
-.el-table th {
+:deep(.el-table th.el-table__cell) {
   background: #f9fafb;
   font-weight: 600;
   color: #374151;
+  border: none;
 }
 
-.el-table__row:hover td {
-  background: #f5f7ff !important;
+:deep(.el-table__row) {
+  transition: all 0.3s ease;
+}
+
+:deep(.el-table__row:hover td) {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05)) !important;
+  transform: scale(1.01);
+}
+
+:deep(.el-table td.el-table__cell) {
+  border: none;
 }
 
 /* 标签 */
-.el-tag {
-  border-radius: 8px;
-  padding: 0 10px;
+:deep(.el-tag) {
+  border-radius: 10px;
+  padding: 4px 12px;
+  font-weight: 500;
+  border: none;
+}
+
+:deep(.el-tag--success) {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #fff;
+}
+
+:deep(.el-tag--danger) {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #fff;
+}
+
+:deep(.el-tag--warning) {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #fff;
+}
+
+:deep(.el-tag--info) {
+  background: linear-gradient(135deg, #6b7280, #4b5563);
+  color: #fff;
 }
 
 /* 分页 */
 .pagination {
   display: flex;
   justify-content: center;
-  margin-top: 20px;
+  margin-top: 24px;
 }
 
-.el-pagination.is-background .el-pager li {
-  border-radius: 8px;
+:deep(.el-pagination.is-background .el-pager li) {
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+:deep(.el-pagination.is-background .el-pager li:hover) {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+  transform: translateY(-2px);
+}
+
+:deep(.el-pagination.is-background .el-pager li.is-active) {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 /* 用户 */
@@ -761,8 +1039,18 @@ onMounted(() => {
 }
 
 .user-cell:hover {
-  transform: translateX(2px);
-  transition: 0.2s;
+  transform: translateX(4px);
+  transition: 0.3s ease;
+}
+
+:deep(.user-cell .el-avatar) {
+  border: 2px solid #f0f2ff;
+  transition: all 0.3s ease;
+}
+
+.user-cell:hover :deep(.el-avatar) {
+  border-color: #667eea;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 .user-name {
@@ -786,17 +1074,29 @@ onMounted(() => {
 .mini-cover {
   width: 90px;
   height: 56px;
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
-  background: #f3f4f6;
-  border: 1px solid #eef2f7;
+  background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+  border: 2px solid #f0f2ff;
   flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.article-cell:hover .mini-cover {
+  border-color: #667eea;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  transform: scale(1.05);
 }
 
 .mini-cover img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.article-cell:hover .mini-cover img {
+  transform: scale(1.1);
 }
 
 .mini-body {
@@ -814,12 +1114,12 @@ onMounted(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .mini-title:hover {
-  color: #409EFF;
-  transform: translateX(2px);
-  transition: 0.2s;
+  color: #667eea;
+  transform: translateX(4px);
 }
 
 .mini-sub {
@@ -831,17 +1131,95 @@ onMounted(() => {
 }
 
 /* 弹窗 */
-.el-dialog {
-  border-radius: 16px;
+:deep(.el-dialog) {
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
-.el-dialog__header {
+:deep(.el-dialog__header) {
   font-weight: 600;
-  font-size: 16px;
+  font-size: 18px;
+  background: #fff;
+  color:  #1f2937;
+  padding: 20px;
+  margin: 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+:deep(.el-dialog__title) {
+  color:  #1f2937;
+}
+
+:deep(.el-dialog__headerbtn .el-dialog__close) {
+  color: #6b7280;
+  font-size: 20px;
+}
+
+:deep(.el-dialog__body) {
+  padding: 24px;
+}
+
+:deep(.el-dialog__footer) {
+  padding: 16px 24px;
+  background: #f9fafb;
+}
+
+/* 表单 */
+:deep(.el-form-item__label) {
+  font-weight: 500;
+  color: #374151;
+}
+
+:deep(.el-input__wrapper) {
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+:deep(.el-input__wrapper:hover) {
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+}
+
+:deep(.el-input__wrapper.is-focus) {
+  box-shadow: 0 2px 12px rgba(102, 126, 234, 0.2);
 }
 
 /* 通用 */
 .w-100 {
   width: 100%;
+}
+
+/* 响应式 */
+@media (max-width: 1200px) {
+  .header-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-header {
+    padding: 20px 10px;
+  }
+
+  .admin-title {
+    font-size: 24px;
+  }
+
+  .header-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-content {
+    padding: 0 10px 20px;
+  }
+
+  .filters {
+    flex-direction: column;
+  }
+
+  .panel-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 </style>
