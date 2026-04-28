@@ -11,6 +11,7 @@ import (
 	"blogs/pkg/utils"
 	"errors"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"go.uber.org/zap"
@@ -225,18 +226,12 @@ func (ctrl *Controller) CheckLikeStatus(c *gin.Context) {
 	if !ok {
 		return
 	}
-	userID, exists := c.Get("userID")
-	if !exists {
-		responses.Success(c, gin.H{"is_liked": false})
+	userId := c.Query("uid")
+	uid, err := strconv.Atoi(userId)
+	if err != nil {
+		responses.FromError(c, err, appErrors.CodeInternalError, "服务器内部出错")
 		return
 	}
-
-	uid, ok := userID.(int)
-	if !ok {
-		responses.Success(c, gin.H{"is_liked": false})
-		return
-	}
-
 	isLiked, err := ctrl.article.IsLiked(id, uid)
 	if err != nil {
 		responses.FromError(c, err, appErrors.CodeInternalError, "查询是否点赞失败")

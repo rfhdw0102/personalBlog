@@ -155,7 +155,9 @@ const goToEdit = () => {
 
 const fetchLikeStatus = async (id) => {
   try {
-    const res = await request.get(`/article/${id}/like-status`)
+    const res = await request.get(`/article/${id}/like-status`, {
+      params: { uid: user?.id || 0 }
+    })
     if (res.code === 200) {
       isLiked.value = !!res.data.is_liked
     }
