@@ -264,7 +264,7 @@ const submitReply = async (comment) => {
   if (!replyContent.value.trim()) return
   replySubmitting.value = true
   try {
-    const res = await request.post('/api/comment', {
+    const res = await request.post('/comment', {
       article_id: comment.article_id,
       content: replyContent.value,
       parent_id: comment.id
@@ -324,7 +324,7 @@ watch(
 
 const fetchUnread = async () => {
   try {
-    const res = await request.get('/api/notification/unread-count')
+    const res = await request.get('/notification/unread-count')
     if (res.code === 200) {
       unreadCount.value = res.data.count || 0
       window.dispatchEvent(new CustomEvent('refresh-unread', { detail: unreadCount.value }))
@@ -337,7 +337,7 @@ const fetchUnread = async () => {
 const fetchNotifications = async () => {
   notificationLoading.value = true
   try {
-    const res = await request.get('/api/notification/list', {
+    const res = await request.get('/notification/list', {
       params: { page: notificationPage.value, pageSize }
     })
     if (res.code === 200) {
@@ -351,7 +351,7 @@ const fetchNotifications = async () => {
 }
 
 const markRead = async (id) => {
-  const res = await request.put(`/api/notification/${id}/read`)
+  const res = await request.put(`/notification/${id}/read`)
   if (res.code === 200) {
     const item = notifications.value.find(n => n.id === id)
     if (item && !item.is_read) {
@@ -363,7 +363,7 @@ const markRead = async (id) => {
 }
 
 const markAllRead = async () => {
-  const res = await request.put('/api/notification/read')
+  const res = await request.put('/notification/read')
   if (res.code === 200) {
     ElMessage.success('已全部标记已读')
     notifications.value.forEach(n => n.is_read = true)
@@ -373,7 +373,7 @@ const markAllRead = async () => {
 }
 
 const deleteNotification = async (id) => {
-  const res = await request.delete(`/api/notification/${id}`)
+  const res = await request.delete(`/notification/${id}`)
   if (res.code === 200) {
     ElMessage.success('已删除')
     const index = notifications.value.findIndex(n => n.id === id)
@@ -398,7 +398,7 @@ const handleCommentTabChange = (tab) => {
 const fetchReceivedComments = async () => {
   commentLoading.value = true
   try {
-    const res = await request.get('/api/comment/user', {
+    const res = await request.get('/comment/user', {
       params: { page: receivedPage.value, pageSize }
     })
     if (res.code === 200) {
@@ -413,7 +413,7 @@ const fetchReceivedComments = async () => {
 const fetchSentComments = async () => {
   commentLoading.value = true
   try {
-    const res = await request.get('/api/comment/userTake', {
+    const res = await request.get('/comment/userTake', {
       params: { page: sentPage.value, pageSize }
     })
     if (res.code === 200) {
@@ -428,7 +428,7 @@ const fetchSentComments = async () => {
 const fetchHiddenComments = async () => {
   commentLoading.value = true
   try {
-    const res = await request.get('/api/comment/user/hide', {
+    const res = await request.get('/comment/user/hide', {
       params: { page: hiddenPage.value, pageSize }
     })
     if (res.code === 200) {
@@ -441,7 +441,7 @@ const fetchHiddenComments = async () => {
 }
 
 const hideReceivedComment = async (id) => {
-  const res = await request.put(`/api/comment/${id}/hide`)
+  const res = await request.put(`/comment/${id}/hide`)
   if (res.code === 200) {
     ElMessage.success('已隐藏')
     const index = receivedComments.value.findIndex(c => c.id === id)
@@ -453,7 +453,7 @@ const hideReceivedComment = async (id) => {
 }
 
 const unhideComment = async (id) => {
-  const res = await request.put(`/api/comment/${id}/unhide`)
+  const res = await request.put(`/comment/${id}/unhide`)
   if (res.code === 200) {
     ElMessage.success('已取消隐藏')
     const index = hiddenComments.value.findIndex(c => c.id === id)
@@ -465,7 +465,7 @@ const unhideComment = async (id) => {
 }
 
 const recallSentComment = async (id) => {
-  const res = await request.delete(`/api/comment/${id}`)
+  const res = await request.delete(`/comment/${id}`)
   if (res.code === 200) {
     ElMessage.success('评论已撤回')
     const index = sentComments.value.findIndex(c => c.id === id)

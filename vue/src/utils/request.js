@@ -3,7 +3,7 @@ import { ElMessage } from 'element-plus'
 import router from '@/router'
 
 const request = axios.create({
-    baseURL: process.env.VUE_APP_API_BASE_URL || 'http://localhost:8082', // 设置你的API地址
+    baseURL: '/api',
     timeout: 10000
 })
 

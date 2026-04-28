@@ -112,7 +112,7 @@ const submitReply = async () => {
   
   replySubmitting.value = true
   try {
-    const res = await request.post('/api/comment', {
+    const res = await request.post('/comment', {
       article_id: props.articleId,
       content: replyContent.value,
       parent_id: props.comment.id
@@ -132,7 +132,7 @@ const submitReply = async () => {
 
 const handleHide = async () => {
   try {
-    const res = await request.put(`/api/comment/${props.comment.id}/hide`)
+    const res = await request.put(`/comment/${props.comment.id}/hide`)
     if (res.code === 200) {
       ElMessage.success('已隐藏')
       emit('hide-success', props.comment.id)
@@ -144,7 +144,7 @@ const handleHide = async () => {
 
 const handleUnhide = async () => {
   try {
-    const res = await request.put(`/api/comment/${props.comment.id}/unhide`)
+    const res = await request.put(`/comment/${props.comment.id}/unhide`)
     if (res.code === 200) {
       ElMessage.success('已取消隐藏')
       emit('unhide-success', props.comment.id)
@@ -156,7 +156,7 @@ const handleUnhide = async () => {
 
 const handleRecall = async () => {
   try {
-    const res = await request.delete(`/api/comment/${props.comment.id}`)
+    const res = await request.delete(`/comment/${props.comment.id}`)
     if (res.code === 200) {
       ElMessage.success('评论已撤回')
       emit('recall-success', props.comment.id)

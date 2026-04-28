@@ -102,10 +102,7 @@ const isAdminPage = computed(() => route.path.startsWith('/admin'))
 const user = computed(() => userStr.value ? JSON.parse(userStr.value) : null)
 const username = computed(() => user.value ? user.value.username : '')
 const userAvatar = computed(() => {
-  if (user.value && user.value.avatar) {
-    return user.value.avatar.startsWith('http') ? user.value.avatar : 'http://localhost:8082' + user.value.avatar
-  }
-  return 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
+  return user.value?.avatar
 })
 const isAdmin = computed(() => user.value && user.value.role === 'admin')
 
@@ -143,7 +140,7 @@ const fetchUnread = async () => {
     return
   }
   try {
-    const res = await request.get('/api/notification/unread-count')
+    const res = await request.get('/notification/unread-count')
     if (res.code === 200) {
       unreadCount.value = res.data.count || 0
     }
@@ -174,7 +171,7 @@ const handleCommand = (command) => {
 }
 
 const logout = () => {
-  request.post('/api/auth/logout').finally(() => {
+  request.post('/auth/logout').finally(() => {
     localStorage.removeItem('token')
     localStorage.removeItem('user')
     isLoggedIn.value = false

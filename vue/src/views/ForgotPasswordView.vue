@@ -102,7 +102,7 @@ const sendCode = async () => {
     return
   }
   try {
-    const res = await request.post('/api/auth/code', { email: form.email })
+    const res = await request.post('/auth/code', { email: form.email })
     if (res.code === 200) {
       ElMessage.success('验证码已发送')
       countdown.value = 60
@@ -127,7 +127,7 @@ const submit = async () => {
     loading.value = true
     try {
       const { keyId, publicKey } = await getPublicKey()
-      const res = await request.post('/api/auth/password', {
+      const res = await request.post('/auth/password', {
         email: form.email,
         code: form.code,
         key_id: keyId,

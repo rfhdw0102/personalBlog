@@ -211,18 +211,13 @@ const authorInfo = ref({
 
 // 二维码完整URL
 const qrUrl = computed(() => {
-  if (authorInfo.value.qr) {
-    return authorInfo.value.qr.startsWith('http')
-        ? authorInfo.value.qr
-        : 'http://localhost:8082' + authorInfo.value.qr
-  }
-  return ''
+  return authorInfo.value.qr || ''
 })
 
 // 获取作者信息
 const fetchAuthorInfo = async () => {
   try {
-    const res = await request.get('/api/user/author')
+    const res = await request.get('/user/author')
     if (res.code === 200) {
       authorInfo.value = {
         username: res.data.username || '博主',
@@ -241,7 +236,7 @@ const fetchAuthorInfo = async () => {
 // 获取分类列表
 const fetchCategories = async () => {
   try {
-    const res = await request.get('/api/category/list')
+    const res = await request.get('/category/list')
     if (res.code === 200) {
       categories.value = res.data || []
     }
@@ -253,7 +248,7 @@ const fetchCategories = async () => {
 // 获取标签列表
 const fetchTags = async () => {
   try {
-    const res = await request.get('/api/tag/list')
+    const res = await request.get('/tag/list')
     if (res.code === 200) {
       tags.value = res.data || []
     }
@@ -283,7 +278,7 @@ const changeSort = (sort) => {
 const fetchArticles = async () => {
   loading.value = true
   try {
-    const res = await request.get('/api/article/list', {
+    const res = await request.get('/article/list', {
       params: {
         status: 'published',
         query: route.query.q || '',

@@ -373,7 +373,7 @@ const statsData = ref({
 
 const fetchStats = async () => {
   try {
-    const res = await request.get('/api/admin/stats')
+    const res = await request.get('/admin/stats')
     if (res.code === 200) {
       statsData.value = res.data
     }
@@ -448,7 +448,7 @@ const formatDate = (dateStr) => {
 const fetchUsers = async () => {
   userLoading.value = true
   try {
-    const res = await request.get('/api/admin/list', {
+    const res = await request.get('/admin/list', {
       params: { query: userQuery.value || '', status: userStatus.value || '', page: userPage.value, pageSize }
     })
     if (res.code === 200) {
@@ -511,14 +511,14 @@ const saveUser = async () => {
 
     let res
     if (userForm.id) {
-      res = await request.put(`/api/admin/${userForm.id}`, payload)
+      res = await request.put(`/admin/${userForm.id}`, payload)
     } else {
       if (!userForm.password) {
         ElMessage.warning('新增用户必须填写密码')
         userSaving.value = false
         return
       }
-      res = await request.post('/api/admin', payload)
+      res = await request.post('/admin', payload)
     }
     if (res.code === 200) {
       ElMessage.success('保存成功')
@@ -531,7 +531,7 @@ const saveUser = async () => {
 }
 
 const deleteUser = async (id) => {
-  const res = await request.delete(`/api/admin/${id}`)
+  const res = await request.delete(`/admin/${id}`)
   if (res.code === 200) {
     ElMessage.success('删除成功')
     const index = users.value.findIndex(u => u.id === id)
@@ -545,7 +545,7 @@ const deleteUser = async (id) => {
 const fetchAdminArticles = async () => {
   adminArticleLoading.value = true
   try {
-    const res = await request.get('/api/article/list', {
+    const res = await request.get('/article/list', {
       params: {
         query: adminArticleQuery.value || '',
         status: adminArticleStatus.value || '',
@@ -563,7 +563,7 @@ const fetchAdminArticles = async () => {
 }
 
 const deleteArticle = async (id) => {
-  const res = await request.delete(`/api/article/${id}`)
+  const res = await request.delete(`/article/${id}`)
   if (res.code === 200) {
     ElMessage.success('删除成功')
     const index = adminArticles.value.findIndex(a => a.id === id)
@@ -577,7 +577,7 @@ const deleteArticle = async (id) => {
 const fetchCategories = async () => {
   categoryLoading.value = true
   try {
-    const res = await request.get('/api/category/pageList', { 
+    const res = await request.get('/category/pageList', {
       params: { 
         query: categoryQuery.value || '',
         page: categoryPage.value, 
@@ -606,9 +606,9 @@ const saveCategory = async () => {
   }
   let res
   if (categoryForm.id) {
-    res = await request.put(`/api/category/${categoryForm.id}`, { name: categoryForm.name })
+    res = await request.put(`/category/${categoryForm.id}`, { name: categoryForm.name })
   } else {
-    res = await request.post('/api/category', { name: categoryForm.name })
+    res = await request.post('/category', { name: categoryForm.name })
   }
   if (res.code === 200) {
     ElMessage.success('保存成功')
@@ -618,7 +618,7 @@ const saveCategory = async () => {
 }
 
 const deleteCategory = async (id) => {
-  const res = await request.delete(`/api/category/${id}`)
+  const res = await request.delete(`/category/${id}`)
   if (res.code === 200) {
     ElMessage.success('删除成功')
     const index = categories.value.findIndex(c => c.id === id)
@@ -632,7 +632,7 @@ const deleteCategory = async (id) => {
 const fetchTags = async () => {
   tagLoading.value = true
   try {
-    const res = await request.get('/api/tag/pageList', { 
+    const res = await request.get('/tag/pageList', {
       params: { 
         query: tagQuery.value || '',
         page: tagPage.value, 
@@ -661,9 +661,9 @@ const saveTag = async () => {
   }
   let res
   if (tagForm.id) {
-    res = await request.put(`/api/tag/${tagForm.id}`, { name: tagForm.name })
+    res = await request.put(`/tag/${tagForm.id}`, { name: tagForm.name })
   } else {
-    res = await request.post('/api/tag', { name: tagForm.name })
+    res = await request.post('/tag', { name: tagForm.name })
   }
   if (res.code === 200) {
     ElMessage.success('保存成功')
@@ -673,7 +673,7 @@ const saveTag = async () => {
 }
 
 const deleteTag = async (id) => {
-  const res = await request.delete(`/api/tag/${id}`)
+  const res = await request.delete(`/tag/${id}`)
   if (res.code === 200) {
     ElMessage.success('删除成功')
     const index = tags.value.findIndex(t => t.id === id)

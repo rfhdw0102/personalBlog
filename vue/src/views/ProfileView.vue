@@ -112,22 +112,16 @@ const headers = {
 }
 
 const avatarUrl = computed(() => {
-  if (userForm.avatar) {
-    return userForm.avatar.startsWith('http') ? userForm.avatar : 'http://localhost:8082' + userForm.avatar
-  }
-  return ''
+  return userForm.avatar || ''
 })
 
 const qrUrl = computed(() => {
-  if (userForm.qr) {
-    return userForm.qr.startsWith('http') ? userForm.qr : 'http://localhost:8082' + userForm.qr
-  }
-  return ''
+  return userForm.qr || ''
 })
 
 const fetchUserInfo = async () => {
   try {
-    const res = await request.get('/api/user/info')
+    const res = await request.get('/user/info')
     if (res.code === 200) {
       const data = res.data
       userForm.avatar = data.avatar
@@ -216,7 +210,7 @@ const submitForm = async () => {
           payload.confirm_password = encryptText(publicKey, userForm.confirmPassword)
         }
 
-        const res = await request.put('/api/user', payload)
+        const res = await request.put('/user', payload)
         if (res.code === 200) {
           ElMessage.success('修改成功')
           userForm.password = ''

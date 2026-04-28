@@ -39,7 +39,7 @@ const openFileDialog = () => {
 const uploadImage = async (file) => {
   const formData = new FormData()
   formData.append('contentImage', file)
-  const res = await request.post('/api/article/contentImage', formData)
+  const res = await request.post('/article/contentImage', formData)
   return res.data
 }
 

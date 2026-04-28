@@ -153,8 +153,8 @@ const handleCoverSuccess = (res) => {
 const fetchData = async () => {
   try {
     const [catRes, tagRes] = await Promise.all([
-      request.get('/api/category/list'),
-      request.get('/api/tag/list')
+      request.get('/category/list'),
+      request.get('/tag/list')
     ])
     if (catRes.code === 200) categories.value = catRes.data
     if (tagRes.code === 200) tags.value = tagRes.data
@@ -165,7 +165,7 @@ const fetchData = async () => {
 
 const fetchArticle = async (id) => {
   try {
-    const res = await request.get(`/api/article/${id}`)
+    const res = await request.get(`/article/${id}`)
     if (res.code === 200) {
       const data = res.data
       form.title = data.title
@@ -200,9 +200,9 @@ const submit = async (status) => {
           status: status
         }
         if (isEdit.value) {
-          res = await request.put('/api/article', { ...payload, id: Number(articleId.value) })
+          res = await request.put('/article', { ...payload, id: Number(articleId.value) })
         } else {
-          res = await request.post('/api/article', payload)
+          res = await request.post('/article', payload)
         }
         if (res.code === 200) {
           ElMessage.success('保存成功')

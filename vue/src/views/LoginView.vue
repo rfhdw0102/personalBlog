@@ -70,7 +70,7 @@ const handleLogin = async () => {
       loading.value = true
       try {
         const { encrypted, keyId } = await encryptWithServerKey(loginForm.password)
-        const res = await request.post('/api/auth/login', {
+        const res = await request.post('/auth/login', {
           username: loginForm.username,
           password: encrypted,
           key_id: keyId

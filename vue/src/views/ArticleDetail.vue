@@ -130,7 +130,7 @@ const avatarUrl = (path) => {
 const fetchArticle = async (id) => {
   loading.value = true
   try {
-    const res = await request.get(`/api/article/${id}`)
+    const res = await request.get(`/article/${id}`)
     if (res.code === 200) {
       article.value = res.data
     }
@@ -143,7 +143,7 @@ const fetchArticle = async (id) => {
 
 const incrementView = async (id) => {
   try {
-    await request.post(`/api/article/${id}/view`)
+    await request.post(`/article/${id}/view`)
   } catch (e) {
     console.error(e)
   }
@@ -155,7 +155,7 @@ const goToEdit = () => {
 
 const fetchLikeStatus = async (id) => {
   try {
-    const res = await request.get(`/api/article/${id}/like-status`)
+    const res = await request.get(`/article/${id}/like-status`)
     if (res.code === 200) {
       isLiked.value = !!res.data.is_liked
     }
@@ -172,14 +172,14 @@ const toggleLike = async () => {
   const id = route.params.id
   try {
     if (!isLiked.value) {
-      const res = await request.post(`/api/article/like/${id}`)
+      const res = await request.post(`/article/like/${id}`)
       if (res.code === 200) {
         isLiked.value = true
         if (article.value) article.value.like_count = (article.value.like_count || 0) + 1
         ElMessage.success('点赞成功')
       }
     } else {
-      const res = await request.post(`/api/article/unlike/${id}`)
+      const res = await request.post(`/article/unlike/${id}`)
       if (res.code === 200) {
         isLiked.value = false
         if (article.value) article.value.like_count = Math.max((article.value.like_count || 0) - 1, 0)
@@ -197,8 +197,8 @@ const refreshComments = async () => {
   commentsLoading.value = true
   try {
     const url = showHiddenComments.value 
-      ? `/api/comment/article/${id}/hide` 
-      : `/api/comment/article/${id}`
+      ? `/comment/article/${id}/hide`
+      : `/comment/article/${id}`
     const res = await request.get(url)
     if (res.code === 200) {
       comments.value = res.data || []
@@ -223,7 +223,7 @@ const submitComment = async () => {
   if (!id) return
   commentSubmitting.value = true
   try {
-    const res = await request.post('/api/comment', { article_id: id, content: commentContent.value })
+    const res = await request.post('/comment', { article_id: id, content: commentContent.value })
     if (res.code === 200) {
       ElMessage.success('评论成功')
       commentContent.value = ''
