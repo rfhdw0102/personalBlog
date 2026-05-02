@@ -17,6 +17,8 @@ func (ctrl *Controller) RegisterRoutes(r *gin.RouterGroup) {
 		router.POST("/:id/view", ctrl.IncrementView)
 		// 获得是否已点赞
 		router.GET("/:id/like-status", ctrl.CheckLikeStatus)
+		// 获取上一篇文章和下一篇文章
+		router.GET("/:id/adjacent", ctrl.GetAdjacent)
 		// 创建文章
 		router.POST("", middleware.JWTAuthMiddleware(ctrl.redisRepo), middleware.AdminAuthMiddleware(), ctrl.Create)
 		// 编辑文章

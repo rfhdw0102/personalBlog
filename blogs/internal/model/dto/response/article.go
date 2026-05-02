@@ -2,6 +2,16 @@ package response
 
 import "blogs/internal/model/entity"
 
+type AdjacentArticle struct {
+	ID    int    `json:"id"`
+	Title string `json:"title"`
+}
+
+type AdjacentArticles struct {
+	Prev *AdjacentArticle `json:"prev"`
+	Next *AdjacentArticle `json:"next"`
+}
+
 type ArticleInfo struct {
 	ID           int          `json:"id"`
 	Title        string       `json:"title"`

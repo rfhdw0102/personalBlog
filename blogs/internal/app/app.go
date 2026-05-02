@@ -105,6 +105,7 @@ func (a *App) initDatabase() error {
 		entity.Category{},
 		entity.Like{},
 		entity.Notification{},
+		entity.About{},
 	); err != nil {
 		logger.Warn("数据库迁移警告", zap.Error(err))
 	} else {
@@ -128,6 +129,7 @@ func (a *App) initDependencies() {
 	commentRepo := repository.NewCommentRepository(a.mysqlDB, redisRepo)
 	categoryRepo := repository.NewCategoryRepository(a.mysqlDB)
 	tagRepo := repository.NewTagRepository(a.mysqlDB)
+	aboutRepo := repository.NewAboutRepository(a.mysqlDB)
 	// 创建Service
 	authService := service.NewAuthService(userRepo, redisRepo)
 	userService := service.NewUserService(userRepo, redisRepo)
@@ -136,13 +138,14 @@ func (a *App) initDependencies() {
 	categoryService := service.NewCategoryService(categoryRepo)
 	commentService := service.NewCommentService(commentRepo, articleRepo)
 	tagService := service.NewTagService(tagRepo)
+	aboutService := service.NewAboutService(aboutRepo)
 	// 创建Consumer
 	a.notificationConsumer = job.NewNotificationConsumer(redisRepo, notificationRepo)
 	// 创建定时同步器
 	a.syncJob = job.NewArticleSync(redisRepo, articleRepo)
 
 	// 创建router
-	a.router = api.NewRouter(authService, userService, articleService, notificationService, commentService, tagService, categoryService, redisRepo)
+	a.router = api.NewRouter(authService, userService, articleService, notificationService, commentService, tagService, categoryService, aboutService, redisRepo)
 }
 
 // initRouter 初始化路由

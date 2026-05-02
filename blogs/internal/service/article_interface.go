@@ -16,4 +16,5 @@ type ArticleService interface {
 	LikeArticle(articleID int, userID int) error
 	UnlikeArticle(articleID int, userID int) error
 	IsLiked(articleID int, userID int) (bool, error)
+	GetAdjacent(id int, sort int) (*response.AdjacentArticles, error)
 }

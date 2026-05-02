@@ -16,4 +16,5 @@ type ArticleRepository interface {
 	UnlikeArticle(articleID int, userID int) error
 	UpdateViewAndLike(articleID int, view int, like int) error
 	IsLiked(articleID int, userID int) (bool, error)
+	GetAdjacent(articleID int, sort int) (*response.AdjacentArticles, error)
 }

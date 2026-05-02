@@ -61,6 +61,10 @@ request.interceptors.response.use(
             const { status, data } = error.response
 
             switch (status) {
+                case 400: {
+                    ElMessage.error(data.message || data.msg || '请求参数错误')
+                    break
+                }
                 case 401: {
                     ElMessage.error('登录已过期，请重新登录')
                     localStorage.removeItem('token')

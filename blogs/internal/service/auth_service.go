@@ -63,10 +63,10 @@ func (s *authService) Register(req request.AuthRequest, key string) error {
 func (s *authService) Login(req request.LoginRequest, key string) (response.LoginUserResponse, error) {
 	user, err := s.userRepo.GetByUsername(req.Username)
 	if err != nil {
-		return response.LoginUserResponse{}, appErrors.New(appErrors.CodeNotFound, "用户不存在")
+		return response.LoginUserResponse{}, appErrors.New(appErrors.CodeBadRequest, "用户不存在")
 	}
 	if user.Status == 0 {
-		return response.LoginUserResponse{}, appErrors.New(appErrors.CodeForbidden, "账户已被禁用")
+		return response.LoginUserResponse{}, appErrors.New(appErrors.CodeBadRequest, "账户已被禁用")
 	}
 
 	password, err := utils.DecryptPassword(req.Password, key)

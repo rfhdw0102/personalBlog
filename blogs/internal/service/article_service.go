@@ -116,6 +116,10 @@ func (s *articleService) IsLiked(articleID int, userID int) (bool, error) {
 	return s.articleRepo.IsLiked(articleID, userID)
 }
 
+func (s *articleService) GetAdjacent(id int, sort int) (*response.AdjacentArticles, error) {
+	return s.articleRepo.GetAdjacent(id, sort)
+}
+
 func (s *articleService) GetStats(articleID int) (int, int, error) {
 	view, like, err := s.redis.GetStats(context.Background(), articleID)
 	if err != nil {

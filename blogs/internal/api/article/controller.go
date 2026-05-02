@@ -240,6 +240,23 @@ func (ctrl *Controller) CheckLikeStatus(c *gin.Context) {
 	responses.Success(c, gin.H{"is_liked": isLiked})
 }
 
+func (ctrl *Controller) GetAdjacent(c *gin.Context) {
+	id, ok := utils.ParamInt(c, "id")
+	if !ok {
+		return
+	}
+
+	sort, _ := strconv.Atoi(c.DefaultQuery("sort", "0"))
+
+	result, err := ctrl.article.GetAdjacent(id, sort)
+	if err != nil {
+		responses.FromError(c, err, appErrors.CodeInternalError, "获取相邻文章失败")
+		return
+	}
+
+	responses.Success(c, result)
+}
+
 func (ctrl *Controller) newArticleFromSubmit(req request.ArticleSubmit, userID int) *entity.Article {
 	return &entity.Article{
 		Title:      req.Title,

@@ -270,9 +270,7 @@ const changeTag = (tagId) => {
 
 // 切换排序方式
 const changeSort = (sort) => {
-  sortType.value = sort
-  currentPage.value = 1
-  fetchArticles()
+  router.push({ path: '/', query: { ...route.query, sort: sort || undefined } })
 }
 
 const fetchArticles = async () => {
@@ -304,13 +302,16 @@ const fetchArticles = async () => {
 watch(() => route.query, (newQuery) => {
   activeTag.value = Number(newQuery.tag) || 0
   activeCategory.value = Number(newQuery.category) || ''
+  sortType.value = newQuery.sort !== undefined ? Number(newQuery.sort) : 0
   currentPage.value = 1
   fetchArticles()
 }, { deep: true })
 
 
 const goToDetail = (id) => {
-  router.push(`/article/${id}`)
+  const query = {}
+  if (sortType.value !== 0) query.sort = sortType.value
+  router.push({ path: `/article/${id}`, query })
 }
 
 const formatDate = (dateStr) => {
@@ -330,7 +331,8 @@ onMounted(() => {
   if (queryTag) activeTag.value = queryTag
   const queryCat = Number(route.query.category)
   if (queryCat) activeCategory.value = queryCat
-  
+  if (route.query.sort !== undefined) sortType.value = Number(route.query.sort)
+
   fetchArticles()
   fetchAuthorInfo()
   fetchCategories()

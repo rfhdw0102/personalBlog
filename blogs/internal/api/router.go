@@ -1,6 +1,7 @@
 package api
 
 import (
+	"blogs/internal/api/about"
 	"blogs/internal/api/article"
 	"blogs/internal/api/auth"
 	"blogs/internal/api/category"
@@ -23,6 +24,7 @@ type Router struct {
 	commentCtrl      *comment.Controller
 	categoryCtrl     *category.Controller
 	tagCtrl          *tag.Controller
+	aboutCtrl        *about.Controller
 }
 
 func NewRouter(
@@ -33,6 +35,7 @@ func NewRouter(
 	commentService service.CommentService,
 	tagService service.TagService,
 	categoryService service.CategoryService,
+	aboutService service.AboutService,
 	redisRepo repository.RedisRepository,
 ) *Router {
 	return &Router{
@@ -43,6 +46,7 @@ func NewRouter(
 		commentCtrl:      comment.NewController(redisRepo, commentService),
 		categoryCtrl:     category.NewController(redisRepo, categoryService),
 		tagCtrl:          tag.NewController(redisRepo, tagService),
+		aboutCtrl:        about.NewController(redisRepo, aboutService),
 	}
 }
 
@@ -72,6 +76,7 @@ func (r *Router) Setup(engine *gin.Engine) {
 		r.commentCtrl.RegisterRoutes(v)
 		r.categoryCtrl.RegisterRoutes(v)
 		r.tagCtrl.RegisterRoutes(v)
+		r.aboutCtrl.RegisterRoutes(v)
 	}
 
 }

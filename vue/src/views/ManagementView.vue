@@ -116,8 +116,12 @@
                     </div>
                   </div>
                   <div class="u-actions">
-                    <el-button text type="primary" @click="toggleReply(c)">{{ replyingCommentId === c.id ? '取消回复' : '回复' }}</el-button>
-                    <el-button text type="danger" @click="hideReceivedComment(c.id)">隐藏</el-button>
+                    <el-button text size="small" @click="toggleReply(c)" :title="replyingCommentId === c.id ? '取消回复' : '回复'">
+                      <el-icon><ChatDotSquare /></el-icon>
+                    </el-button>
+                    <el-button text size="small" @click="hideReceivedComment(c.id)" title="隐藏">
+                      <el-icon><Hide /></el-icon>
+                    </el-button>
                   </div>
                 </div>
               </div>
@@ -156,7 +160,9 @@
                   </div>
                   <el-popconfirm title="确定撤回该评论吗？" @confirm="recallSentComment(c.id)">
                     <template #reference>
-                      <el-button text type="danger">撤回</el-button>
+                      <el-button text size="small" title="撤回">
+                        <el-icon><Delete /></el-icon>
+                      </el-button>
                     </template>
                   </el-popconfirm>
                 </div>
@@ -194,7 +200,9 @@
                     </div>
                     <div class="u-content">{{ c.content }}</div>
                   </div>
-                  <el-button text type="primary" @click="unhideComment(c.id)">取消隐藏</el-button>
+                  <el-button text size="small" @click="unhideComment(c.id)" title="取消隐藏">
+                    <el-icon><View /></el-icon>
+                  </el-button>
                 </div>
               </div>
             </div>
@@ -219,6 +227,7 @@
 import {ref, onMounted, watch, computed} from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { ChatDotSquare, Delete, Hide, View } from '@element-plus/icons-vue'
 import request from '@/utils/request'
 
 const route = useRoute()

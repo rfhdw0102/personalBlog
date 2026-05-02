@@ -1,9 +1,9 @@
 <template>
   <el-config-provider>
     <div id="app-layout">
-      <header class="app-header" :class="{ 'admin-header-mode': isAdminPage }">
+      <header class="app-header">
         <div class="header-content" :class="{ 'admin-mode': isAdminPage }">
-          <div class="logo-container" @click="router.push('/')">
+          <div class="logo-container">
             <span class="logo-text">Blogs</span>
           </div>
 
@@ -201,14 +201,6 @@ onMounted(() => {
   top: 0;
   z-index: 1000;
 }
-.app-header.admin-header-mode {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-bottom: none;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-.admin-header-mode .logo-text {
-  color: #fff;
-}
 .header-content {
   max-width: 1100px;
   width: 100%;
@@ -226,7 +218,6 @@ onMounted(() => {
 .logo-container {
   display: flex;
   align-items: center;
-  cursor: pointer;
   outline: none;
 }
 .logo-text {
@@ -303,12 +294,6 @@ onMounted(() => {
   gap: 8px;
   cursor: pointer;
   outline: none;
-}
-.admin-header-mode .user-info .username {
-  color: #fff;
-}
-.admin-header-mode .user-info .el-icon {
-  color: #fff;
 }
 .username {
   font-weight: 600;

@@ -9,12 +9,18 @@
         </div>
       </div>
       <div class="comment-actions-wrapper">
-        <el-button v-if="!showHiddenComments" text type="primary" size="small" @click="showReplyInput = !showReplyInput">
-          {{ showReplyInput ? '取消回复' : '回复' }}
+        <el-button v-if="!showHiddenComments" text size="small" @click="showReplyInput = !showReplyInput" title="回复">
+          <el-icon><ChatDotSquare /></el-icon>
         </el-button>
-        <el-button v-if="isOwner && !showHiddenComments" text type="warning" size="small" @click="handleRecall">撤回</el-button>
-        <el-button v-if="isAuthor && !showHiddenComments" text type="danger" size="small" @click="handleHide">隐藏</el-button>
-        <el-button v-if="isAuthor && showHiddenComments" text type="primary" size="small" @click="handleUnhide">取消隐藏</el-button>
+        <el-button v-if="isOwner && !showHiddenComments" text size="small" @click="handleRecall" title="撤回">
+          <el-icon><Delete /></el-icon>
+        </el-button>
+        <el-button v-if="isAuthor && !showHiddenComments" text size="small" @click="handleHide" title="隐藏">
+          <el-icon><Hide /></el-icon>
+        </el-button>
+        <el-button v-if="isAuthor && showHiddenComments" text size="small" @click="handleUnhide" title="取消隐藏">
+          <el-icon><View /></el-icon>
+        </el-button>
       </div>
     </div>
     <div class="comment-content">{{ comment.content }}</div>
@@ -57,6 +63,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { ElMessage } from 'element-plus'
+import { ChatDotSquare, Delete, Hide, View } from '@element-plus/icons-vue'
 import request from '@/utils/request'
 
 const props = defineProps({

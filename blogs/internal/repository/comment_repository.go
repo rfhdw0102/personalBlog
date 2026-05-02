@@ -171,6 +171,10 @@ func (r *commentRepository) DeleteComment(commentID int) error {
 func (r *commentRepository) getAllDescendantIDs(tx *gorm.DB, parentID int) ([]int, error) {
 	var ids []int
 
+	// WITH：定义临时结果集（CTE，Common Table Expression），查询中可复用
+	//RECURSIVE：允许 CTE 引用自身，实现递归查询
+	//comment_tree：给这个临时结果集起的名字
+	//递归 CTE 专门用来处理树形结构数据（评论嵌套回复、部门层级、分类树等）
 	sql := `
 	WITH RECURSIVE comment_tree AS (
 		SELECT id FROM comments WHERE id = ?

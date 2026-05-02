@@ -36,6 +36,25 @@
       </div>
     </el-card>
 
+    <div class="adjacent-nav">
+      <div v-if="prevArticle" class="adjacent-item prev" @click="goToArticle(prevArticle.id)">
+        <span class="adjacent-label">上一篇</span>
+        <span class="adjacent-title">{{ prevArticle.title }}</span>
+      </div>
+      <div v-else class="adjacent-item prev disabled">
+        <span class="adjacent-label">上一篇</span>
+        <span class="adjacent-title">暂无内容</span>
+      </div>
+      <div v-if="nextArticle" class="adjacent-item next" @click="goToArticle(nextArticle.id)">
+        <span class="adjacent-label">下一篇</span>
+        <span class="adjacent-title">{{ nextArticle.title }}</span>
+      </div>
+      <div v-else class="adjacent-item next disabled">
+        <span class="adjacent-label">下一篇</span>
+        <span class="adjacent-title">暂无内容</span>
+      </div>
+    </div>
+
     <el-card v-if="article" shadow="never" class="comment-card">
       <template #header>
         <div class="comment-header">
@@ -97,7 +116,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import request from '@/utils/request'
@@ -113,6 +132,8 @@ const commentsLoading = ref(false)
 const commentContent = ref('')
 const commentSubmitting = ref(false)
 const showHiddenComments = ref(false)
+const prevArticle = ref(null)
+const nextArticle = ref(null)
 
 const userStr = localStorage.getItem('user')
 const user = userStr ? JSON.parse(userStr) : null
@@ -244,13 +265,43 @@ const formatDate = (dateStr) => {
   return date.toLocaleString()
 }
 
-onMounted(() => {
-  const id = route.params.id
-  if (!id) return
+const fetchAdjacent = async (id) => {
+  try {
+    const res = await request.get(`/article/${id}/adjacent`, {
+      params: { sort: Number(route.query.sort) || 0 }
+    })
+    if (res.code === 200) {
+      prevArticle.value = res.data.prev
+      nextArticle.value = res.data.next
+    }
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+const goToArticle = (id) => {
+  router.push(`/article/${id}`)
+}
+
+const loadArticle = (id) => {
   incrementView(id)
   fetchArticle(id)
   fetchLikeStatus(id)
+  fetchAdjacent(id)
   refreshComments()
+}
+
+onMounted(() => {
+  const id = route.params.id
+  if (!id) return
+  loadArticle(id)
+})
+
+watch(() => route.params.id, (newId) => {
+  if (newId) {
+    window.scrollTo(0, 0)
+    loadArticle(newId)
+  }
 })
 </script>
 
@@ -379,5 +430,49 @@ onMounted(() => {
   text-align: center;
   padding: 100px 0;
   color: var(--secondary-text-color);
+}
+.adjacent-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.adjacent-item {
+  flex: 1;
+  padding: 16px 20px;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.adjacent-item:hover {
+  border-color: #409eff;
+  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.12);
+}
+.adjacent-item.disabled {
+  cursor: default;
+  color: #94a3b8;
+}
+.adjacent-item.disabled:hover {
+  border-color: #e5e7eb;
+  box-shadow: none;
+}
+.adjacent-item.next {
+  text-align: right;
+}
+.adjacent-label {
+  display: block;
+  font-size: 12px;
+  color: #94a3b8;
+  margin-bottom: 6px;
+}
+.adjacent-title {
+  font-size: 14px;
+  color: var(--text-color);
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 </style>

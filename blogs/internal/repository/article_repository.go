@@ -144,6 +144,55 @@ func (r *articleRepository) IsLiked(articleID int, userID int) (bool, error) {
 	return count > 0, err
 }
 
+func (r *articleRepository) GetAdjacent(articleID int, sort int) (*response.AdjacentArticles, error) {
+	result := &response.AdjacentArticles{}
+
+	if sort == 1 {
+		var current entity.Article
+		if err := r.db.Select("view_count").First(&current, articleID).Error; err != nil {
+			return nil, err
+		}
+
+		var prev entity.Article
+		err := r.db.Select("id", "title").
+			Where("(view_count < ? OR (view_count = ? AND id < ?)) AND status = ?", current.ViewCount, current.ViewCount, articleID, "published").
+			Order("view_count DESC, id DESC").
+			First(&prev).Error
+		if err == nil {
+			result.Prev = &response.AdjacentArticle{ID: prev.ID, Title: prev.Title}
+		}
+
+		var next entity.Article
+		err = r.db.Select("id", "title").
+			Where("(view_count > ? OR (view_count = ? AND id > ?)) AND status = ?", current.ViewCount, current.ViewCount, articleID, "published").
+			Order("view_count ASC, id ASC").
+			First(&next).Error
+		if err == nil {
+			result.Next = &response.AdjacentArticle{ID: next.ID, Title: next.Title}
+		}
+	} else {
+		var prev entity.Article
+		err := r.db.Select("id", "title").
+			Where("id < ? AND status = ?", articleID, "published").
+			Order("id DESC").
+			First(&prev).Error
+		if err == nil {
+			result.Prev = &response.AdjacentArticle{ID: prev.ID, Title: prev.Title}
+		}
+
+		var next entity.Article
+		err = r.db.Select("id", "title").
+			Where("id > ? AND status = ?", articleID, "published").
+			Order("id ASC").
+			First(&next).Error
+		if err == nil {
+			result.Next = &response.AdjacentArticle{ID: next.ID, Title: next.Title}
+		}
+	}
+
+	return result, nil
+}
+
 func (r *articleRepository) toDTOList(articles []entity.Article) []response.ArticleInfo {
 	res := make([]response.ArticleInfo, len(articles))
 	for i, a := range articles {
