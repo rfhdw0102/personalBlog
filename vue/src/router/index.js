@@ -30,7 +30,7 @@ const routes = [
     path: '/article/edit/:id?',
     name: 'ArticleEdit',
     component: () => import('../views/ArticleEdit.vue'),
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, title: '博客后台管理' }
   },
   {
     path: '/profile',
@@ -42,7 +42,7 @@ const routes = [
     path: '/management',
     name: 'Management',
     component: () => import('../views/ManagementView.vue'),
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, title: '博客后台管理' }
   },
   {
     path: '/about',
@@ -53,7 +53,7 @@ const routes = [
     path: '/admin',
     name: 'Admin',
     component: () => import('../views/AdminView.vue'),
-    meta: { requiresAuth: true, requiresAdmin: true }
+    meta: { requiresAuth: true, requiresAdmin: true, title: '博客后台管理' }
   }
 ]
 
@@ -81,6 +81,11 @@ router.beforeEach((to, from, next) => {
   }
 
   next()
+})
+
+// 动态设置页面标题
+router.afterEach((to) => {
+  document.title = to.meta.title || '提笔了无痕的博客'
 })
 
 export default router

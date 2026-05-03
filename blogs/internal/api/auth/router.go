@@ -21,5 +21,7 @@ func (ctrl *Controller) RegisterRoutes(r *gin.RouterGroup) {
 		router.GET("/key", ctrl.GetPubKeyHandler)
 		// 退出登录
 		router.POST("/logout", middleware.JWTAuthMiddleware(ctrl.redisRepo), ctrl.Logout)
+		//图形验证码
+		router.GET("/captcha", ctrl.GetCaptcha)
 	}
 }

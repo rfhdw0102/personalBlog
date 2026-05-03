@@ -175,6 +175,23 @@
         <img :src="qrUrl" alt="收款二维码" class="donate-qr" />
       </div>
     </el-dialog>
+
+    <!--    页脚-->
+    <footer class="page-footer">
+      <div class="footer-content">
+        <div class="footer-divider">
+          <span class="divider-line"></span>
+          <span class="divider-text">已经阅读到底了</span>
+          <span class="divider-line"></span>
+        </div>
+        <p class="footer-copyright">
+          © {{ currentYear }} {{ authorInfo.username || '博主' }} · 记录学习与成长
+        </p>
+        <p class="footer-subtitle">
+          感谢你的阅读与陪伴 ❤️
+        </p>
+      </div>
+    </footer>
   </div>
 </template>
 
@@ -232,6 +249,9 @@ const fetchAuthorInfo = async () => {
     console.error('获取作者信息失败:', error)
   }
 }
+
+// 添加当前年份
+const currentYear = ref(new Date().getFullYear())
 
 // 获取分类列表
 const fetchCategories = async () => {
@@ -733,6 +753,100 @@ onMounted(() => {
   .cover {
     width: 100%;
     height: 200px;
+  }
+}
+/* 页脚样式 */
+.page-footer {
+  margin-top: 60px;
+  padding: 40px 20px 30px;
+  text-align: center;
+}
+
+.footer-content {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.footer-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.divider-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+      to right,
+      transparent,
+      #e2e8f0 20%,
+      #e2e8f0 80%,
+      transparent
+  );
+}
+
+.divider-text {
+  font-size: 14px;
+  color: #94a3b8;
+  white-space: nowrap;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.footer-copyright {
+  font-size: 13px;
+  color: #94a3b8;
+  margin: 0 0 8px;
+  letter-spacing: 0.3px;
+}
+
+.footer-subtitle {
+  font-size: 12px;
+  color: #cbd5e1;
+  margin: 0;
+  font-style: italic;
+}
+
+/* 深色模式适配 */
+@media (prefers-color-scheme: dark) {
+  .divider-line {
+    background: linear-gradient(
+        to right,
+        transparent,
+        #475569 20%,
+        #475569 80%,
+        transparent
+    );
+  }
+
+  .divider-text {
+    color: #64748b;
+  }
+
+  .footer-copyright {
+    color: #64748b;
+  }
+
+  .footer-subtitle {
+    color: #475569;
+  }
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .page-footer {
+    margin-top: 40px;
+    padding: 30px 16px 24px;
+  }
+
+  .footer-divider {
+    gap: 12px;
+  }
+
+  .divider-text {
+    font-size: 13px;
   }
 }
 </style>

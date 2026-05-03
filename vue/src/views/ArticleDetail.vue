@@ -154,6 +154,7 @@ const fetchArticle = async (id) => {
     const res = await request.get(`/article/${id}`)
     if (res.code === 200) {
       article.value = res.data
+      document.title = res.data.title
     }
   } catch (error) {
     console.error(error)
