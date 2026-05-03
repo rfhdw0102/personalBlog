@@ -11,8 +11,8 @@ database:
     host: "localhost"
     port: 3306
     username: "root"
-    password: ""  # 密码
-    database: ""  # 数据库
+    password: "995812"
+    database: "blogs"
     max_idle_conns: 10
     max_open_conns: 100
   redis:
@@ -40,8 +40,8 @@ jwt:
 email:
   host: "smtp.qq.com"
   port: 587
-  username: "" # qq邮箱
-  password: "" # smtp认证后的密码，不是qq密码
+  username: "2129905621@qq.com"
+  password: "koptculidhqpdcjb"
 
 # CORS 配置
 cors:
