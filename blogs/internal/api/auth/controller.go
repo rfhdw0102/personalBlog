@@ -4,6 +4,7 @@ import (
 	"blogs/internal/model/dto/request"
 	"blogs/internal/repository"
 	"blogs/internal/service"
+	"blogs/pkg/captcha"
 	appErrors "blogs/pkg/errors"
 	"blogs/pkg/logger"
 	"blogs/pkg/responses"
@@ -55,6 +56,11 @@ func (ctrl *Controller) Login(c *gin.Context) {
 		logger.Warn("请求参数错误", zap.Error(err))
 		return
 	}
+	// 校验验证码
+	if !captcha.Verify(loginRequest.CaptchaID, loginRequest.Captcha) {
+		responses.BadRequest(c, "验证码错误")
+		return
+	}
 	key, err := ctrl.authService.ConsumePrivateKey(loginRequest.KeyID)
 	if err != nil {
 		responses.FromError(c, err, appErrors.CodeInternalError, "服务器内部出错")
@@ -78,6 +84,18 @@ func (ctrl *Controller) Logout(c *gin.Context) {
 		return
 	}
 	responses.Success(c, "登出成功")
+}
+
+func (ctrl *Controller) GetCaptcha(c *gin.Context) {
+	id, b64s, err := captcha.Generate()
+	if err != nil {
+		responses.InternalError(c, "生成图形验证码失败，请刷新重试")
+		return
+	}
+	responses.Success(c, map[string]string{
+		"captcha_id":  id,
+		"captcha_val": b64s,
+	})
 }
 
 func (ctrl *Controller) SendCode(c *gin.Context) {

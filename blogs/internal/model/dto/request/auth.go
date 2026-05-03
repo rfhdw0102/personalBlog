@@ -10,9 +10,11 @@ type AuthRequest struct {
 }
 
 type LoginRequest struct {
-	KeyID    string `json:"key_id"`
-	Username string `json:"username" binding:"required,min=3,max=20,alphanum"`
-	Password string `json:"password" binding:"required"`
+	KeyID     string `json:"key_id"`
+	Username  string `json:"username" binding:"required,min=3,max=20,alphanum"`
+	Password  string `json:"password" binding:"required"`
+	CaptchaID string `json:"captcha_id" binding:"required"`
+	Captcha   string `json:"captcha" binding:"required,len=4"`
 }
 
 type SendCodeRequest struct {
