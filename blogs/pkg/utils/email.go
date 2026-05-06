@@ -4,7 +4,10 @@ import (
 	"blogs/pkg/config"
 	"fmt"
 	"net/smtp"
+	"regexp"
 )
+
+var QqEmailRegex = regexp.MustCompile(`^[a-zA-Z0-9]([a-zA-Z0-9_.]{2,14})[a-zA-Z0-9]@qq\.com$`)
 
 // SendEmail 发送邮件
 func SendEmail(to, subject, body string) error {

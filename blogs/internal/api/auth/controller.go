@@ -9,7 +9,6 @@ import (
 	"blogs/pkg/logger"
 	"blogs/pkg/responses"
 	"blogs/pkg/utils"
-	"regexp"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -24,8 +23,6 @@ func NewController(authService service.AuthService, redisRepo repository.RedisRe
 	return &Controller{authService: authService, redisRepo: redisRepo}
 }
 
-var qqEmailRegex = regexp.MustCompile(`^[a-zA-Z0-9]([a-zA-Z0-9_.]{2,14})[a-zA-Z0-9]@qq\.com$`)
-
 func (ctrl *Controller) Register(c *gin.Context) {
 	var registerRequest request.AuthRequest
 	if err := c.ShouldBindJSON(&registerRequest); err != nil {
@@ -33,7 +30,7 @@ func (ctrl *Controller) Register(c *gin.Context) {
 		logger.Warn("请求参数错误", zap.Error(err))
 		return
 	}
-	if !qqEmailRegex.MatchString(registerRequest.Email) {
+	if !utils.QqEmailRegex.MatchString(registerRequest.Email) {
 		responses.BadRequest(c, "目前仅支持qq邮箱")
 		return
 	}
@@ -104,7 +101,7 @@ func (ctrl *Controller) SendCode(c *gin.Context) {
 		responses.BadRequest(c, "请求参数错误")
 		return
 	}
-	if !qqEmailRegex.MatchString(sendCodeRequest.Email) {
+	if !utils.QqEmailRegex.MatchString(sendCodeRequest.Email) {
 		responses.BadRequest(c, "目前仅支持qq邮箱")
 		return
 	}
