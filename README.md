@@ -5,7 +5,7 @@
 ## 📝 开胃小菜：项目展示（Show）
 **1）、登录页面：**
 
-![img.png](readmeImg/login.png)
+![img.png](img.png)
 
 **注册，忘记密码页面不再展示**
 
