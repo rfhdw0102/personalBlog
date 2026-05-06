@@ -2,6 +2,33 @@
 
 > 一款基于 Go (Gin) + Vue 3 的高性能、前后端分离的个人博客与内容管理系统。
 
+## 📝 开胃小菜：项目展示（Show）
+**1）、登录页面：**
+
+![img.png](readmeImg/login.png)
+
+**注册，忘记密码页面不再展示**
+
+**2）主页：**
+
+![img_1.png](readmeImg/homeView.png)
+
+**3）文章：**
+
+![img.png](readmeImg/article.png)
+
+**4) 消息：**
+
+![img.png](readmeImg/message.png)
+
+**5）评论：**
+
+![img.png](readmeImg/comment.png)
+
+**6）后台：**
+
+![img.png](readmeImg/background.png)
+
 ## 1. 项目介绍 (Overview)
 
 本项目是一个轻量级但功能完备的个人博客系统，采用现代化的前后端分离架构。后端基于 Go 语言和 Gin 框架构建，致力于提供高性能、高并发的 API 服务；前端采用 Vue 3 + Element Plus，提供极佳的用户交互体验。
